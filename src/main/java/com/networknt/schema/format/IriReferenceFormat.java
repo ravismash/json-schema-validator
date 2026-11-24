@@ -5,14 +5,9 @@ import java.net.URI;
 /**
  * Format for iri-reference.
  */
-public class IriReferenceFormat extends AbstractRFC3986Format {
+public class IriReferenceFormat extends AbstractRFC3987Format {
     @Override
-    protected boolean validate(URI uri) {
-        return !containsBidiFormatting(uri.toString());
-    }
-
-    @Override
-    protected boolean isInternationalized() {
+    protected boolean validateIri(URI uri) {
         return true;
     }
 

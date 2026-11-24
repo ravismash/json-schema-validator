@@ -5,15 +5,10 @@ import java.net.URI;
 /**
  * Format for iri.
  */
-public class IriFormat extends AbstractRFC3986Format {
+public class IriFormat extends AbstractRFC3987Format {
     @Override
-    protected boolean validate(URI uri) {
-        return !containsBidiFormatting(uri.toString()) && uri.isAbsolute();
-    }
-
-    @Override
-    protected boolean isInternationalized() {
-        return true;
+    protected boolean validateIri(URI uri) {
+        return uri.isAbsolute();
     }
 
     @Override

@@ -98,6 +98,7 @@ public abstract class AbstractRFC3986Format implements Format {
     /**
      * Determines if the value may contain the non-ASCII characters RFC 3987 allows in an IRI: {@code ucschar}, and
      * {@code iprivate} in the query. Other non-ASCII characters are then rejected anywhere in the value.
+     * {@link AbstractRFC3987Format} returns true.
      *
      * @return true for the IRI formats
      */
@@ -184,8 +185,8 @@ public abstract class AbstractRFC3986Format implements Format {
     /**
      * Determines if the value contains a bidirectional formatting character: the ones RFC 3987 section 4.1 forbids in
      * an IRI (LRM, RLM, LRE, RLE, PDF, LRO and RLO), and the ones Unicode added later that can reorder the displayed
-     * text the same way (ALM and the isolates LRI, RLI, FSI and PDI). {@code IriFormat} and {@code IriReferenceFormat}
-     * reject such values; a subclass for another IRI-like format can call this from its {@link #validate(URI)}.
+     * text the same way (ALM and the isolates LRI, RLI, FSI and PDI). {@link AbstractRFC3987Format} rejects such
+     * values; a subclass of this class for another IRI-like format can call this from its {@link #validate(URI)}.
      *
      * @param value the value
      * @return true if the value contains one
