@@ -47,7 +47,8 @@ public abstract class AbstractRFC3986Format implements Format {
     protected abstract boolean validate(URI uri);
 
     private boolean check(URI uri) {
-        return !containsMisplacedBracket(uri) && validate(uri);
+        return !containsMisplacedBracket(uri) && !(isInternationalized() && containsNonIriCharacter(uri.toString()))
+                && validate(uri);
     }
 
     /**
@@ -95,8 +96,8 @@ public abstract class AbstractRFC3986Format implements Format {
     }
 
     /**
-     * Determines if the userinfo and the host may contain the non-ASCII characters RFC 3987 allows in an IRI
-     * ({@code ucschar}).
+     * Determines if the value may contain the non-ASCII characters RFC 3987 allows in an IRI: {@code ucschar}, and
+     * {@code iprivate} in the query. Other non-ASCII characters are then rejected anywhere in the value.
      *
      * @return true for the IRI formats
      */
@@ -198,6 +199,38 @@ public abstract class AbstractRFC3986Format implements Format {
             }
         }
         return false;
+    }
+
+    /**
+     * Determines if the value contains a non-ASCII character that RFC 3987 does not allow: one that is not
+     * {@code ucschar}, or {@code iprivate} outside the query. {@link URI} accepts any character that is not a control
+     * or a space, including private-use characters, noncharacters such as U+FDD0 and U+FFFE, and lone surrogates.
+     */
+    private static boolean containsNonIriCharacter(String value) {
+        // the query starts at the first "?" and ends at the first "#", since neither can occur before it
+        boolean query = false;
+        boolean fragment = false;
+        int i = 0;
+        while (i < value.length()) {
+            int cp = value.codePointAt(i);
+            if (cp == '#' && !fragment) {
+                fragment = true;
+                query = false;
+            } else if (cp == '?' && !fragment) {
+                query = true;
+            } else if (cp >= 0x80 && !isUcschar(cp) && !(query && isIprivate(cp))) {
+                return true;
+            }
+            i += Character.charCount(cp);
+        }
+        return false;
+    }
+
+    /**
+     * RFC 3987 {@code iprivate}, which is allowed only in the query.
+     */
+    private static boolean isIprivate(int cp) {
+        return (cp >= 0xE000 && cp <= 0xF8FF) || (cp >= 0xF0000 && cp <= 0xFFFFD) || (cp >= 0x100000 && cp <= 0x10FFFD);
     }
 
     /**
